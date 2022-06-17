@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.uploadgallery.database.MyDbHelper
 import com.example.uploadgallery.databinding.ActivityGalleryBinding
+import com.example.uploadgallery.models.Picture
 import java.io.File
 import java.io.FileOutputStream
 
@@ -15,10 +17,14 @@ class GalleryActivity : AppCompatActivity() {
     private val TAG = "GalleryActivity"
     var REQUEST_CODE = 1
 
+    private lateinit var myDbHelper: MyDbHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGalleryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        myDbHelper = MyDbHelper(this)
 
         binding.apply {
             oldBtn.setOnClickListener {
@@ -49,14 +55,17 @@ class GalleryActivity : AppCompatActivity() {
 
     private val getImageContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         binding.image.setImageURI(uri)
-//        val openInputStream = contentResolver?.openInputStream(uri)
-//        val m = System.currentTimeMillis()
-//        val file = File(filesDir, "$m.jpg")
-//        val fileOutputStream = FileOutputStream(file)
-//        openInputStream?.copyTo(fileOutputStream)
-//        openInputStream?.close()
-//        fileOutputStream.close()
-//        Log.d(TAG, "onActivityResult: ${file.absolutePath}")
+        val openInputStream = contentResolver?.openInputStream(uri)
+        val m = System.currentTimeMillis()
+        val file = File(filesDir, "$m.jpg")
+        val fileOutputStream = FileOutputStream(file)
+        openInputStream?.copyTo(fileOutputStream)
+        openInputStream?.close()
+        fileOutputStream.close()
+
+        val readBytes = file.readBytes()
+        myDbHelper.addImage(Picture(path = file.absolutePath, image = readBytes))
+        Log.d(TAG, "onActivityResult: ${file.absolutePath}")
     }
 
     private fun oldMethodGallery() {

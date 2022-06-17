@@ -45,6 +45,11 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this@MainActivity, CameraActivity::class.java)
                 startActivity(intent)
             }
+
+            btn3.setOnClickListener {
+                val intent = Intent(this@MainActivity, PictureActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 }
